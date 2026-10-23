@@ -22,6 +22,7 @@ use PMG::RESTEnvironment;
 use PMG::pmgcfg;
 use PMG::Config;
 
+use Proxmox::APT::HistoryAPI;
 use Proxmox::RS::APT::Repositories;
 
 use AptPkg::Cache;
@@ -66,7 +67,9 @@ __PACKAGE__->register_method({
 
         my $res = [
             { id => 'changelog' },
+            { id => 'history' },
             { id => 'repositories' },
+            { id => 'termlog' },
             { id => 'update' },
             { id => 'versions' },
         ];
@@ -705,6 +708,12 @@ __PACKAGE__->register_method({
         );
     },
 });
+
+__PACKAGE__->register_method(
+    Proxmox::APT::HistoryAPI::history_method({ check => ['admin', 'audit'] }));
+
+__PACKAGE__->register_method(
+    Proxmox::APT::HistoryAPI::term_log_method({ check => ['admin', 'audit'] }));
 
 __PACKAGE__->register_method({
     name => 'versions',
