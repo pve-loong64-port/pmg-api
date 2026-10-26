@@ -68,6 +68,7 @@ __PACKAGE__->register_method({
         my $res = [
             { id => 'changelog' },
             { id => 'history' },
+            { id => 'installed-changelog' },
             { id => 'repositories' },
             { id => 'termlog' },
             { id => 'update' },
@@ -714,6 +715,9 @@ __PACKAGE__->register_method(
 
 __PACKAGE__->register_method(
     Proxmox::APT::HistoryAPI::term_log_method({ check => ['admin', 'audit'] }));
+
+__PACKAGE__->register_method(
+    Proxmox::APT::HistoryAPI::installed_changelog_method({ check => ['admin', 'audit'] }));
 
 __PACKAGE__->register_method({
     name => 'versions',
