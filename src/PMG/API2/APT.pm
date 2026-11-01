@@ -73,6 +73,7 @@ __PACKAGE__->register_method({
             { id => 'termlog' },
             { id => 'transaction-changelogs' },
             { id => 'update' },
+            { id => 'update-changelogs' },
             { id => 'versions' },
         ];
 
@@ -123,6 +124,7 @@ my $assemble_pkginfo = sub {
 
 # we try to cache results
 my $pmg_pkgstatus_fn = "/var/lib/pmg/pkgupdates";
+my $changelog_cache_dir = "/var/cache/pmg/apt-changelogs";
 
 my $read_cached_pkgstatus = sub {
     my $data = [];
@@ -244,6 +246,44 @@ __PACKAGE__->register_method({
         my $pkglist = &$update_pmg_pkgstatus();
 
         return $pkglist;
+    },
+});
+
+__PACKAGE__->register_method({
+    name => 'update_changelogs',
+    path => 'update-changelogs',
+    method => 'GET',
+    description => "Get the changelog entries for pending updates, grouped by source package.",
+    permissions => { check => ['admin', 'audit'] },
+    # Refreshing the update cache and reading repository credentials require root.
+    protected => 1,
+    proxyto => 'node',
+    parameters => {
+        additionalProperties => 0,
+        properties => {
+            node => get_standard_option('pve-node'),
+        },
+    },
+    returns => Proxmox::APT::HistoryAPI::changelogs_schema(),
+    code => sub {
+        my ($param) = @_;
+
+        my $updates = __PACKAGE__->list_updates($param);
+        my $changes = [
+            map {
+                my $old = $_->{OldVersion};
+                my $installed = defined($old) && $old ne '';
+                {
+                    package => $_->{Package},
+                    arch => $_->{Arch},
+                    action => $installed ? 'upgrade' : 'install',
+                    'old-version' => $installed ? $old : undef,
+                    'new-version' => $_->{Version},
+                }
+            } $updates->@*
+        ];
+
+        return Proxmox::RS::APT::History::update_changelogs($changes, $changelog_cache_dir);
     },
 });
 
