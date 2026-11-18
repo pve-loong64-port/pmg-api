@@ -1,3 +1,27 @@
+pmg-api (9.1.8) trixie; urgency=medium
+
+  * api: apt: add endpoints for the APT history, listing the past APT
+    transactions of the node with when and how they were invoked, what they
+    changed and whether they failed, with their terminal output. This helps
+    to find the update that could have caused a regression, or what happened
+    during a failed upgrade.
+
+  * api: apt: add endpoints for the changelog of an installed package and for
+    the changelogs of all package changes of a transaction, from the
+    changelogs that the installed packages ship, so no network access is
+    needed.
+
+  * api: apt: add an endpoint for the changelogs of all pending updates,
+    grouped by source package and limited to the new versions, to see what
+    an upgrade brings before installing it. pmg-daily prefetches them after
+    refreshing the package lists if the view got used in the last 30 days.
+
+  * api: node config: require consent-text to be base64 encoded.
+
+  * config: admin: allow empty consent-text again.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 18 Nov 2026 21:00:32 +0100
+
 pmg-api (9.1.7) trixie; urgency=medium
 
   * add systemd override for rrdcached.socket to adapt the group ownership and
