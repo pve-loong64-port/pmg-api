@@ -189,7 +189,7 @@ EODESC
             type => 'string',
             maxLength => 64 * 1024,
             default => '',
-            pattern => "[A-Za-z0-9\+\/]+\={0,2}",
+            pattern => "[A-Za-z0-9\+\/]*\={0,2}",
         },
         'log-tracker-base' => {
             description =>
